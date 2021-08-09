@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Card, EnumCardNumber, EnumCardSuit } from "./cards.model";
+import { Card, EnumCardNumber, EnumCardSuit } from "../models/cards.model";
 
 @Injectable({ providedIn: 'root' })
 export class CardsService {
