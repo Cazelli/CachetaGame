@@ -1,1 +1,5 @@
 <router-outlet></router-outlet>
+<button (click)="startGame()">Start Game</button>
+<div *ngFor="let card of deck" style="float: left; width: 30px;">
+    <img [src]="'/assets/img/cards/' + card.image">
+</div>
