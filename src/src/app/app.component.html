@@ -4,13 +4,13 @@
 <div style="float: left; width: 900px;">
     <h1>Buy Stack</h1>
     <div *ngFor="let card of buyStack$ | async" style="float: left; width: 10px;">
-        <img [src]="'/assets/img/cards/' + card.image" width="80px">
+        <img [src]="'assets/img/cards/' + card.image" width="80px">
     </div>
 </div>
 <div *ngFor="let player of players$ | async; let i = index" style="float: left; width: 900px;">
     <h1>Player {{i}}</h1>
     <div *ngFor="let card of player.cards" style="float: left; width: 10px;">
-        <img [src]="'/assets/img/cards/' + card.image" width="80px">
+        <img [src]="'assets/img/cards/' + card.image" width="80px">
     </div>
 
 </div>
