@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Card } from './shared/models/cards.model';
 import { CardsService } from './shared/services/cards.service';
 import { CachetaStore } from './shared/state/store/root.store';
 import * as gameActions from './shared/state/actions/game.actions';
+import { Observable } from 'rxjs';
 
 
 @Component({
@@ -14,7 +15,8 @@ import * as gameActions from './shared/state/actions/game.actions';
 export class AppComponent implements OnInit {
   title = 'cacheta-game';
 
-  deck?: Card[];
+  players$ = this.store.select(s => s.game.players);
+  buyStack$ = this.store.select(s => s.game.buyStack);
 
   constructor(
     public cardsService: CardsService,
@@ -22,8 +24,9 @@ export class AppComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.deck = this.cardsService.getDeck();
+    
   }
+
 
   startGame(){
     this.store.dispatch(gameActions.startGame());
