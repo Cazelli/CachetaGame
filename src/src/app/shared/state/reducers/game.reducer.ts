@@ -7,7 +7,6 @@ export interface State {
     discartPile: Card[],
     playerRound: number,
     players: {
-        order: number;
         cards: Card[];
     }[]
 }
@@ -17,7 +16,7 @@ export const initialState: State = {
     buyStack: [],
     discartPile: [],
     playerRound: 0,
-    players: [{order: 0, cards: []}, {order: 1, cards: []}, {order: 2, cards: []}, {order: 3, cards: []}]
+    players: [{ cards: [] }, { cards: [] }, { cards: [] }, { cards: [] }]
 }
 
 
@@ -25,10 +24,33 @@ const gameReducer = createReducer(
     initialState,
 
     on(fromGameActions.startGame, state => ({ ...state })),
-    
-    on(fromGameActions.distributeCards, (state, { buyStack }) => ({
+
+    on(fromGameActions.createDeckStack, (state, { buyStack }) => ({
         ...state, buyStack
-    }))
+    })),
+
+    on(fromGameActions.givePlayerCardFromBuyStack, (state, { playerIndex, card }) => {
+
+        let deck = [...state.buyStack];
+
+        const index = deck.findIndex(d => d.number === card.number && d.suit === card.suit);
+
+        deck.splice(index, 1);
+
+        let cardsPlayer = { ...state.players[playerIndex], cards: [...state.players[playerIndex].cards] };
+        
+        cardsPlayer.cards.push(card);
+       
+        return {
+            ...state,
+            buyStack: deck,
+            players: [
+                ...state.players.slice(0, playerIndex),
+                cardsPlayer,
+                ...state.players.slice(playerIndex + 1),
+            ]
+        };
+    }),
 )
 
 
