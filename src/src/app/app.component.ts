@@ -16,6 +16,10 @@ export class AppComponent implements OnInit {
   title = 'cacheta-game';
 
   players$ = this.store.select(s => s.game.players);
+  player0$ = this.store.select(s => s.game.players[0]);
+  player1$ = this.store.select(s => s.game.players[1]);
+  player2$ = this.store.select(s => s.game.players[2]);
+  player3$ = this.store.select(s => s.game.players[3]);
   buyStack$ = this.store.select(s => s.game.buyStack);
 
   constructor(

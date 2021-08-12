@@ -1,16 +1,42 @@
-<router-outlet></router-outlet>
-<button (click)="startGame()">Start Game</button>
-<br clear="both" />
-<div style="float: left; width: 900px;">
-    <h1>Buy Stack</h1>
-    <div *ngFor="let card of buyStack$ | async" style="float: left; width: 10px;">
-        <img [src]="'assets/img/cards/' + card.image" width="80px">
+<div class='game-table'>
+    <div class="game-top">
+        <div class='player-2'>
+            <div *ngFor="let card of (player2$ | async)?.cards" style="float: left; width: 10px;">
+                <img [src]="'assets/img/cards/' + card.image" width="80px">
+            </div>
+        </div>
+    </div>
+    <div class='game-center'>
+        <div class="game-center-left">
+            <div class='player-3'>
+                <div *ngFor="let card of (player3$ | async)?.cards" style="float: left; width: 10px;">
+                    <img [src]="'assets/img/cards/' + card.image" width="80px">
+                </div>
+            </div>
+        </div>
+        <div class='card-area'>
+            <button (click)="startGame()">Start Game</button>
+            <div *ngFor="let card of buyStack$ | async" style="float: left; width: 5px;">
+                <img [src]="'assets/img/cards/' + card.image" width="80px">
+            </div>
+        </div>
+        <div class="game-center-right">
+            <div class='player-1'>
+                <div *ngFor="let card of (player1$ | async)?.cards" style="float: left; width: 10px;">
+                    <img [src]="'assets/img/cards/' + card.image" width="80px">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="game-botton">
+        <div class='player-0'>
+            <div *ngFor="let card of (player0$ | async)?.cards" style="float: left; width: 10px;">
+                <img [src]="'assets/img/cards/' + card.image" width="80px">
+            </div>
+        </div>
     </div>
 </div>
-<div *ngFor="let player of players$ | async; let i = index" style="float: left; width: 900px;">
-    <h1>Player {{i}}</h1>
-    <div *ngFor="let card of player.cards" style="float: left; width: 10px;">
-        <img [src]="'assets/img/cards/' + card.image" width="80px">
-    </div>
 
-</div>
+
+
+<router-outlet></router-outlet>

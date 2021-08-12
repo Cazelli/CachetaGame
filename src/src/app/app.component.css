@@ -1,0 +1,25 @@
+*{
+    border: 1px solid rgb(144, 144, 144);
+}
+
+.game-table{
+    display: flex;
+    flex-direction: column;
+}
+
+.game-top, .game-botton{
+    min-height: 20vh;
+}
+
+.game-center{
+    display: flex;
+    min-height: calc(100vh - 40vh);
+}
+
+.card-area{
+    flex-grow: 6;
+}
+
+.game-center-left, .game-center-right{
+    flex-grow: 2;
+}
