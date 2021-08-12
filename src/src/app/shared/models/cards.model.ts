@@ -1,9 +1,9 @@
 
 export class Card {
     public constructor(
-        public order: number,
         public number: EnumCardNumber,
         public suit: EnumCardSuit,
+        public backColor: EnumCardBackColor,
         public image: string,
     ) { }
 }
@@ -29,4 +29,9 @@ export enum EnumCardNumber {
     cJ = 'J',
     cQ = 'Q',
     cK = 'K',
+}
+
+export enum EnumCardBackColor{
+    red = 'red',
+    black = 'black',
 }

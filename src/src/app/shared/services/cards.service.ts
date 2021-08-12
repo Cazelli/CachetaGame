@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Card, EnumCardNumber, EnumCardSuit } from "../models/cards.model";
+import { Card, EnumCardBackColor, EnumCardNumber, EnumCardSuit } from "../models/cards.model";
 
 @Injectable({ providedIn: 'root' })
 export class CardsService {
@@ -7,20 +7,51 @@ export class CardsService {
     getDeck(): Card[] {
         let cards: Card[] = [];
 
-        let index = 0;
-        for (const cardNumber of this.getAllCardNumbers()) {
-            for (const cardSuit of this.getAllCardSuits()) {
-                cards.push(new Card(
-                    index,
-                    cardNumber,
-                    cardSuit,
-                    EnumCardNumber[cardNumber.toString() as keyof typeof EnumCardNumber] + EnumCardSuit[cardSuit.toString() as keyof typeof EnumCardSuit] + '.svg'
-                ));
+        for (const cardBackColor of this.getAllCardBackColors()) {
+            for (const cardNumber of this.getAllCardNumbers()) {
+                for (const cardSuit of this.getAllCardSuits()) {
+                    cards.push(new Card(
+                        cardNumber,
+                        cardSuit,
+                        cardBackColor,
+                        EnumCardNumber[cardNumber.toString() as keyof typeof EnumCardNumber] + EnumCardSuit[cardSuit.toString() as keyof typeof EnumCardSuit] + '.svg'
+                    ));
 
+                }
             }
-            index++;
         }
+
+        this.shuffle(cards);
+
         return cards;
+    }
+
+    //https://bost.ocks.org/mike/shuffle/
+    shuffle(array: Card[]) {
+        var currentIndex = array.length, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [
+                array[randomIndex], array[currentIndex]];
+        }
+
+        return array;
+    }
+
+    cardsAreEqual(card1: Card, card2: Card) {
+        return card1.backColor === card2.backColor
+            &&
+            card1.number === card2.number
+            &&
+            card1.suit === card2.suit
+
     }
 
     private getAllCardNumbers() {
@@ -40,6 +71,15 @@ export class CardsService {
             cardSuits.push(cardSuit);
         }
         return cardSuits;
+    }
+
+    private getAllCardBackColors() {
+        let cardBackColors: EnumCardBackColor[] = [];
+        for (let i = 0; i < Object.keys(EnumCardBackColor).length; i++) {
+            const cardBackColor = Object.keys(EnumCardBackColor)[i] as EnumCardBackColor;
+            cardBackColors.push(cardBackColor);
+        }
+        return cardBackColors;
     }
 
 }

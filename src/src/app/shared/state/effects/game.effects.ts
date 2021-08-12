@@ -49,7 +49,7 @@ export class GameEffects {
 
                                     cardToGive = g.buyStack[Math.floor(Math.random() * g.buyStack.length)]
 
-                                    if (cardsGiven.findIndex(c => c.number === cardToGive.number && c.suit === cardToGive.suit)) {
+                                    if (cardsGiven.findIndex(c => this.cardService.cardsAreEqual(c, cardToGive))) {
                                         cardAlreadyGiven = true;
                                     }
 
