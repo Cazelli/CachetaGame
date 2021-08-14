@@ -1,5 +1,6 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { Card } from '../../models/cards.model';
+import { cardsAreEqual } from '../../services/cards.service';
 import * as fromGameActions from '../actions/game.actions';
 
 export interface State {
@@ -7,6 +8,7 @@ export interface State {
     discartPile: Card[],
     playerRound: number,
     players: {
+        index: number;
         cards: Card[];
     }[]
 }
@@ -16,14 +18,19 @@ export const initialState: State = {
     buyStack: [],
     discartPile: [],
     playerRound: 0,
-    players: [{ cards: [] }, { cards: [] }, { cards: [] }, { cards: [] }]
+    players: [
+        { index: 0, cards: new Array(9).fill(null) },
+        { index: 1, cards: new Array(9).fill(null) },
+        { index: 2, cards: new Array(9).fill(null) },
+        { index: 3, cards: new Array(9).fill(null) },
+    ]
 }
 
 
 const gameReducer = createReducer(
     initialState,
 
-    on(fromGameActions.startGame, state => ({ ...state })),
+    on(fromGameActions.startGame, state => ({ ...initialState })),
 
     on(fromGameActions.createDeckStack, (state, { buyStack }) => ({
         ...state, buyStack
@@ -33,14 +40,16 @@ const gameReducer = createReducer(
 
         let deck = [...state.buyStack];
 
-        const index = deck.findIndex(d => d.number === card.number && d.suit === card.suit);
+        const index = deck.findIndex(d => cardsAreEqual(d, card));
 
         deck.splice(index, 1);
 
         let cardsPlayer = { ...state.players[playerIndex], cards: [...state.players[playerIndex].cards] };
-        
-        cardsPlayer.cards.push(card);
-       
+
+        const cardIndex = cardsPlayer.cards.findIndex(c => c == null)
+
+        cardsPlayer.cards[cardIndex] = card;
+
         return {
             ...state,
             buyStack: deck,

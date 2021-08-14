@@ -1,0 +1,4 @@
+.card{
+    float: left; 
+    width: calc(100vh - 98vh);;
+}

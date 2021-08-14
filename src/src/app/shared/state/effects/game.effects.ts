@@ -23,13 +23,13 @@ export class GameEffects {
         this.actions$.pipe(
             ofType(fromGameActions.startGame),
             switchMap(() => {
-                var cards = this.cardService.getDeck();
+                const cards = this.cardService.getDeck();
                 return of(fromGameActions.createDeckStack({ buyStack: cards }));
             })
         )
     );
 
-    givePlayerCards$ = createEffect(() =>
+    distributeCards$ = createEffect(() =>
         this.actions$.pipe(
             ofType(fromGameActions.createDeckStack),
             tap(() => {
@@ -38,27 +38,31 @@ export class GameEffects {
                     .pipe(take(1))
                     .subscribe(g => {
 
-                        var cardsGiven: Card[] = [];
 
+                        let currentCardIndex = g.buyStack.length - 1;
                         for (let cardIndex = 0; cardIndex < 9; cardIndex++) {
                             for (let playerIndex = 0; playerIndex < g.players.length; playerIndex++) {
 
-                                let cardAlreadyGiven = false;
-                                let cardToGive: Card;
-                                do {
+                                // let cardAlreadyGiven = false;
+                                // let cardToGive: Card;
+                                // do {
 
-                                    cardToGive = g.buyStack[Math.floor(Math.random() * g.buyStack.length)]
+                                //     cardToGive = g.buyStack[Math.floor(Math.random() * g.buyStack.length)]
+                                //     cardToGive = g.buyStack[g.buyStack.length - 1]
 
-                                    if (cardsGiven.findIndex(c => this.cardService.cardsAreEqual(c, cardToGive))) {
-                                        cardAlreadyGiven = true;
-                                    }
+                                //     if (cardsGiven.findIndex(c => this.cardService.cardsAreEqual(c, cardToGive))) {
+                                //         cardAlreadyGiven = true;
+                                //     }
 
-                                } while (!cardAlreadyGiven);
+                                // } while (!cardAlreadyGiven);
 
-                                cardsGiven.push(cardToGive);
-
+                                // cardsGiven.push(cardToGive);
                                 setTimeout(() => {
+
+                                    const cardToGive = g.buyStack[currentCardIndex];
+                                    currentCardIndex--;
                                     this.gameState.dispatch(fromGameActions.givePlayerCardFromBuyStack({ playerIndex, card: cardToGive }))
+                                    
                                 }, cardIndex * 1000 + playerIndex * 250);
                             }
                         }

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -13,14 +14,17 @@ import { EffectsModule } from '@ngrx/effects';
 import * as gameState from '../app/shared/state/reducers/game.reducer';
 import { LogEffects } from './shared/state/effects/log.effects';
 import { GameEffects } from './shared/state/effects/game.effects';
+import { PlayerComponent } from './player/player.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    PlayerComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
 
     /* ngrx */

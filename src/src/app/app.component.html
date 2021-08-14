@@ -1,42 +1,34 @@
 <div class='game-table'>
     <div class="game-top">
         <div class='player-2'>
-            <div *ngFor="let card of (player2$ | async)?.cards" style="float: left; width: 10px;">
-                <img [src]="'assets/img/cards/' + card.image" width="80px">
-            </div>
+            <app-player [indexPlayer]="2" [buyStackPosition]="buyStackPosition"></app-player>
         </div>
     </div>
     <div class='game-center'>
         <div class="game-center-left">
             <div class='player-3'>
-                <div *ngFor="let card of (player3$ | async)?.cards" style="float: left; width: 10px;">
-                    <img [src]="'assets/img/cards/' + card.image" width="80px">
-                </div>
+                <app-player [indexPlayer]="3" [buyStackPosition]="buyStackPosition"></app-player>
             </div>
         </div>
         <div class='card-area'>
             <button (click)="startGame()">Start Game</button>
-            <div *ngFor="let card of buyStack$ | async" style="float: left; width: 5px;">
-                <img [src]="'assets/img/cards/' + card.image" width="80px">
+        </div>
+        <div #divBuyStack class="buy-card-stack">
+            <div *ngFor="let card of buyStack$ | async" >
+                <img [src]="'assets/img/cards/' + card.image" width="80px" *ngIf="card">
             </div>
         </div>
         <div class="game-center-right">
             <div class='player-1'>
-                <div *ngFor="let card of (player1$ | async)?.cards" style="float: left; width: 10px;">
-                    <img [src]="'assets/img/cards/' + card.image" width="80px">
-                </div>
+                <app-player [indexPlayer]="1" [buyStackPosition]="buyStackPosition"></app-player>
             </div>
         </div>
     </div>
     <div class="game-botton">
         <div class='player-0'>
-            <div *ngFor="let card of (player0$ | async)?.cards" style="float: left; width: 10px;">
-                <img [src]="'assets/img/cards/' + card.image" width="80px">
-            </div>
+            <app-player [indexPlayer]="0" [buyStackPosition]="buyStackPosition"></app-player>
         </div>
     </div>
 </div>
-
-
 
 <router-outlet></router-outlet>

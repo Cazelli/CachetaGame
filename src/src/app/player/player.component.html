@@ -1,0 +1,4 @@
+<div *ngFor="let card of (player$ | async)?.cards; let i = index" #divCard class="card">
+    <img *ngIf="card" [@reciveCardFronDeck]="startCardAnimations[i]"
+        [style]="{ transform: transformCardStartPositions[i] }" [src]="'assets/img/cards/' + card?.image" width="80px">
+</div>

@@ -22,7 +22,7 @@ export class CardsService {
         }
 
         this.shuffle(cards);
-
+        
         return cards;
     }
 
@@ -45,14 +45,7 @@ export class CardsService {
         return array;
     }
 
-    cardsAreEqual(card1: Card, card2: Card) {
-        return card1.backColor === card2.backColor
-            &&
-            card1.number === card2.number
-            &&
-            card1.suit === card2.suit
 
-    }
 
     private getAllCardNumbers() {
         let cardNumbers: EnumCardNumber[] = [];
@@ -81,5 +74,14 @@ export class CardsService {
         }
         return cardBackColors;
     }
+
+}
+
+export function cardsAreEqual(card1: Card, card2: Card) {
+    return card1.backColor === card2.backColor
+        &&
+        card1.number === card2.number
+        &&
+        card1.suit === card2.suit
 
 }
