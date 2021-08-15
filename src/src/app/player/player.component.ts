@@ -19,7 +19,7 @@ import { Card } from '../shared/models/cards.model';
       state('startAnimation',
         style({ transform: 'translateX(0px) translateY(0px)' })
       ),
-      transition('void => startAnimation', [animate('1s')])
+      transition('void => startAnimation', [animate('240ms')])
     ]),
   ]
 })
@@ -46,7 +46,7 @@ export class PlayerComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    
+
     if (this.indexPlayer != null) {
       this.player$ = this.store.select(s => s.game.players[Number(this.indexPlayer)]);
     }
@@ -77,9 +77,25 @@ export class PlayerComponent implements OnInit {
 
       });
 
-      this.startCardAnimations[cardIndex] = 'startAnimation'
+      this.startCardAnimations[cardIndex] = 'startAnimation';
+      this.playCardFlip();
 
     });
   }
+
+  playCardFlip() {
+    let audio = new Audio();
+    if (this.indexPlayer == 0) {
+      audio.volume = 0.5;
+    } else if (this.indexPlayer == 2) {
+      audio.volume = 0.1;
+    } else {
+      audio.volume = 0.3;
+    }
+    audio.src = `../../assets/sounds/card_flip1.wav`;
+    audio.load();
+    audio.play();
+  }
+
 
 }
