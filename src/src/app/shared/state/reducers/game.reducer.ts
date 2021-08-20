@@ -60,6 +60,24 @@ const gameReducer = createReducer(
             ]
         };
     }),
+
+    on(fromGameActions.moveCardPositionInPlayerHand, (state, {playerIndex, lastIndex, nextIndex}) => {
+        
+        let currentPlayer = { ...state.players[playerIndex], cards: [...state.players[playerIndex].cards] };
+        
+        let card = currentPlayer.cards[lastIndex];
+
+        currentPlayer.cards.splice(nextIndex, 0, currentPlayer.cards.splice(lastIndex, 1)[0]);
+
+        return {
+            ...state,
+            players: [
+                ...state.players.slice(0, playerIndex),
+                currentPlayer,
+                ...state.players.slice(playerIndex + 1),
+            ]
+        }; 
+    })
 )
 
 

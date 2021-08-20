@@ -51,6 +51,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
+
   }
 
 
@@ -64,7 +65,7 @@ export class AppComponent implements OnInit {
     ).subscribe(cardIndex => {
 
       this.divCards.forEach((divCard, i) => {
-        
+
         if (cardIndex == i) {
           const buyStackPosition = this.getOffsetElement(this.divBuyStack.nativeElement);
 
@@ -99,7 +100,7 @@ export class AppComponent implements OnInit {
     return { top: _y, left: _x };
   }
 
-  get buyStackPosition(){
+  get buyStackPosition() {
     return this.getOffsetElement(this.divBuyStack.nativeElement);
   }
 

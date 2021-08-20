@@ -8,3 +8,12 @@ export const createDeckStack = createAction(
 
 export const givePlayerCardFromBuyStack = createAction(
     '[GAME] Give player card from buy stack', props<{ playerIndex: number; card: Card }>())
+
+
+
+export const finishedDistributingCards = createAction(
+        '[GAME] Finished distribuding cards')
+
+
+export const moveCardPositionInPlayerHand = createAction(
+    '[GAME] Move card position in player hand ', props<{ playerIndex: number; lastIndex: number; nextIndex: number }>())

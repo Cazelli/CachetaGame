@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StoreModule } from '@ngrx/store';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +27,7 @@ import { PlayerComponent } from './player/player.component';
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
+    DragDropModule,
 
     /* ngrx */
     StoreModule.forRoot({ game: gameState.reducer }),
