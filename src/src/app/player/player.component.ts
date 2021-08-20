@@ -1,13 +1,13 @@
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { Component, ElementRef, Input, OnInit, QueryList, ViewChildren } from '@angular/core';
-import { ofType } from '@ngrx/effects';
-import { ActionsSubject, Store } from '@ngrx/store';
-import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { concatLatestFrom, ofType } from '@ngrx/effects';
+import { Action, ActionsSubject, Store } from '@ngrx/store';
+import { delay, filter, map, mergeMap, switchMap, take, tap, withLatestFrom } from 'rxjs/operators';
 import { CardsService } from '../shared/services/cards.service';
 import { CachetaStore } from '../shared/state/store/root.store';
 import * as fromGameActions from '../shared/state/actions/game.actions';
 import { getOffsetElement } from '../shared/getOffsetElement';
-import { Observable } from 'rxjs';
+import { Observable, pipe } from 'rxjs';
 import { Card } from '../shared/models/cards.model';
 
 
@@ -70,42 +70,30 @@ export class PlayerComponent implements OnInit {
     this.actions$.pipe(
       ofType(fromGameActions.givePlayerCardFromBuyStack),
       filter(action => action.playerIndex == this.playerIndex),
-    ).subscribe(action => {
+      concatLatestFrom(action => this.store.select(s => s.game.players[action.playerIndex])),
+      map(([action, player]) => player.cards.findIndex(c => c == null) - 1), //get index of the last card that is null, the card before is the current card
+      map(lastNullCard => lastNullCard < 0 ? 8 : lastNullCard), // calculate the index of the current card      
+      tap((cardIndex: number) => {
 
-      this.store
-        .select(s => s.game.players[action.playerIndex])
-        .pipe(
-          take(1),
-          map(player => player.cards.findIndex(c => c == null) - 1), //get index of the last card that is null, the card before is the current card
-          map(lastNullCard => lastNullCard < 0 ? 8 : lastNullCard) // calculate the index of the current card
-        ).subscribe((cardIndex) => {
-          this.divCards.forEach((divCard, i) => {
+        const divCard = this.divCards.find((divCard, i) => cardIndex == i);
 
-            if (cardIndex == i) {
+        //calculates the startposition of the current card
+        const cardPosition = getOffsetElement(divCard?.nativeElement);
+        const startCardPositionX = this.buyStackPosition.left - cardPosition.left;
+        const startCardPositionY = this.buyStackPosition.top - cardPosition.top;
+        this.transformCardStartPositions[cardIndex] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
 
-              //calculates the startposition of the current card
-              const cardPosition = getOffsetElement(divCard.nativeElement);
-              const startCardPositionX = this.buyStackPosition.left - cardPosition.left;
-              const startCardPositionY = this.buyStackPosition.top - cardPosition.top;
-              this.transformCardStartPositions[cardIndex] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
-            }
-
-          });
-
-          this.startCardAnimations[cardIndex] = 'startAnimation';
-          this.playCardFlip();
-
-        });
-        
-    });
+        this.startCardAnimations[cardIndex] = 'startAnimation';
+        this.playCardFlip();
+      })
+    ).subscribe();
 
     this.actions$.pipe(
       ofType(fromGameActions.finishedDistributingCards),
+      delay(0),
       tap(() => {
-        setTimeout(() => {
-          this.startCardAnimations = Array(9).fill('');
-          this.transformCardStartPositions = Array(9).fill('');
-        }, 0);
+        this.startCardAnimations = Array(9).fill('');
+        this.transformCardStartPositions = Array(9).fill('');
       })
     ).subscribe();
 
