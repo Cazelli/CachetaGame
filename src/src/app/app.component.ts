@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
   player1$ = this.store.select(s => s.game.players[1]);
   player2$ = this.store.select(s => s.game.players[2]);
   player3$ = this.store.select(s => s.game.players[3]);
-  buyStack$ = this.store.select(s => s.game.buyStack);
+  topCardBuyStack$ = this.store.select(s => s.game.buyStack[s.game.buyStack.length - 1]);
 
   constructor(
     public cardsService: CardsService,

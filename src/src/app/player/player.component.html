@@ -1,7 +1,17 @@
-<div class="cards" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onDropMovingCard($event)">
-    <div cdkDrag *ngFor="let card of (player$ | async)?.cards; let i = index" #divCard class="card">
-        <img *ngIf="card" [@reciveCardFronDeck]="startCardAnimations[i]"
-            [style]="{ transform: transformCardStartPositions[i] }" [src]="'assets/img/cards/' + card?.image">
-            
-    </div>
+<div
+  [class]="{cards: true,'cards-vertical': cardsOrientation == getEnumCardOrientation.vertical,'cards-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}"
+  cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onDropMovingCard($event)">
+
+  <div cdkDrag *ngFor="let card of (player$ | async)?.cards; let i = index" #divCard
+    [class]="{card: true,'card-vertical': cardsOrientation == getEnumCardOrientation.vertical,'card-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}">
+    <!-- other players cards -->
+    <img *ngIf="card && (player$ | async)?.index != 0" [@reciveCardFronDeck]="startCardAnimations[i]"
+      [style]="{ transform: transformCardStartPositions[i] }"
+      [src]="'assets/img/cards/back-' + card?.backColor + '.svg'" />
+
+    <!-- current player card-->
+    <img *ngIf="card && (player$ | async)?.index == 0" [@reciveCardFronDeck]="startCardAnimations[i]"
+      [style]="{ transform: transformCardStartPositions[i] }" [src]="'assets/img/cards/' + card?.image" />
+
+  </div>
 </div>

@@ -9,7 +9,12 @@ import * as fromGameActions from '../shared/state/actions/game.actions';
 import { getOffsetElement } from '../shared/getOffsetElement';
 import { Observable, pipe } from 'rxjs';
 import { Card } from '../shared/models/cards.model';
+import { Player } from '../shared/models/player.model';
 
+enum EnumCardOrientation {
+  vertical = 'vertical',
+  horizontal = 'horizontal',
+}
 
 @Component({
   selector: 'app-player',
@@ -17,10 +22,14 @@ import { Card } from '../shared/models/cards.model';
   styleUrls: ['./player.component.css'],
   animations: [
     trigger('reciveCardFronDeck', [
-      state('startAnimation',
+      state('vertical',
         style({ transform: 'translateX(0px) translateY(0px)' })
       ),
-      transition('void => startAnimation', [animate('240ms')])
+      state('horizontal',
+        style({ transform: 'translateX(0px) translateY(0px) rotate(90deg)' })
+      ),
+      transition('void => vertical', [animate('240ms')]),
+      transition('void => horizontal', [animate('240ms')])
     ]),
   ]
 })
@@ -35,10 +44,12 @@ export class PlayerComponent implements OnInit {
   @ViewChildren('divCard')
   divCards: QueryList<ElementRef> = {} as QueryList<ElementRef>;
 
-  player$?: Observable<{ index: number; cards: Card[] }>;
+  player$?: Observable<Player>;
 
   startCardAnimations: string[] = Array(9).fill('');
   transformCardStartPositions: string[] = Array(9).fill('');
+
+  cardsOrientation?: EnumCardOrientation | null = null;
 
   constructor(
     public cardsService: CardsService,
@@ -50,6 +61,10 @@ export class PlayerComponent implements OnInit {
 
     if (this.playerIndex != null) {
       this.player$ = this.store.select(s => s.game.players[Number(this.playerIndex)]);
+
+      this.player$.subscribe(p => {
+        this.cardsOrientation = p.index == 0 || p.index == 2 ? EnumCardOrientation.vertical : EnumCardOrientation.horizontal;
+      })
     }
 
     this.setupCardAnimations();
@@ -70,7 +85,7 @@ export class PlayerComponent implements OnInit {
     this.actions$.pipe(
       ofType(fromGameActions.givePlayerCardFromBuyStack),
       filter(action => action.playerIndex == this.playerIndex),
-      concatLatestFrom(action => this.store.select(s => s.game.players[action.playerIndex])),
+      concatLatestFrom(action => this.player$ as Observable<Player>),
       map(([action, player]) => player.cards.findIndex(c => c == null) - 1), //get index of the last card that is null, the card before is the current card
       map(lastNullCard => lastNullCard < 0 ? 8 : lastNullCard), // calculate the index of the current card      
       tap((cardIndex: number) => {
@@ -83,7 +98,7 @@ export class PlayerComponent implements OnInit {
         const startCardPositionY = this.buyStackPosition.top - cardPosition.top;
         this.transformCardStartPositions[cardIndex] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
 
-        this.startCardAnimations[cardIndex] = 'startAnimation';
+        this.startCardAnimations[cardIndex] = this.cardsOrientation?.toString() ?? '';
         this.playCardFlip();
       })
     ).subscribe();
@@ -92,8 +107,7 @@ export class PlayerComponent implements OnInit {
       ofType(fromGameActions.finishedDistributingCards),
       delay(0),
       tap(() => {
-        this.startCardAnimations = Array(9).fill('');
-        this.transformCardStartPositions = Array(9).fill('');
+        this.transformCardStartPositions =  this.cardsOrientation == EnumCardOrientation.horizontal ? Array(9).fill('rotate(90deg)') : Array(9).fill('');
       })
     ).subscribe();
 
@@ -111,6 +125,10 @@ export class PlayerComponent implements OnInit {
     audio.src = `../../assets/sounds/card_flip1.wav`;
     audio.load();
     audio.play();
+  }
+
+  public get getEnumCardOrientation(){
+    return EnumCardOrientation;
   }
 
 

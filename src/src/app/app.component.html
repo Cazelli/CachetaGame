@@ -12,10 +12,9 @@
         </div>
         <div class='card-area'>
             <button (click)="startGame()">Start Game</button>
-        </div>
-        <div #divBuyStack class="buy-card-stack">
-            <div *ngFor="let card of buyStack$ | async" >
-                <img [src]="'assets/img/cards/' + card.image" width="80px" *ngIf="card">
+            <div #divBuyStack class="buy-card-stack">
+                <img [src]="'assets/img/cards/back-' + (topCardBuyStack$ | async)?.backColor + '.svg'" width="100px"
+                    *ngIf="(topCardBuyStack$ | async)">
             </div>
         </div>
         <div class="game-center-right">
