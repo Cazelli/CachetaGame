@@ -1,8 +1,8 @@
 <div
   [class]="{cards: true,'cards-vertical': cardsOrientation == getEnumCardOrientation.vertical,'cards-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}"
-  cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onDropMovingCard($event)">
+  cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onDropMovingCard($event)" >
 
-  <div cdkDrag *ngFor="let card of (player$ | async)?.cards; let i = index" #divCard
+  <div  *ngFor="let card of (player$ | async)?.cards; let i = index" #divCard cdkDrag [cdkDragDisabled]="!dragAndDropCardEnabled"
     [class]="{card: true,'card-vertical': cardsOrientation == getEnumCardOrientation.vertical,'card-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}">
     <!-- other players cards -->
     <img *ngIf="card && (player$ | async)?.index != 0" [@reciveCardFronDeck]="startCardAnimations[i]"

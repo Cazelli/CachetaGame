@@ -44,12 +44,14 @@ export class PlayerComponent implements OnInit {
   @ViewChildren('divCard')
   divCards: QueryList<ElementRef> = {} as QueryList<ElementRef>;
 
-  player$?: Observable<Player>;
+  player$: Observable<Player> = this.store.select(s => s.game.players[Number(this.playerIndex)]);
 
   startCardAnimations: string[] = Array(9).fill('');
   transformCardStartPositions: string[] = Array(9).fill('');
 
   cardsOrientation?: EnumCardOrientation | null = null;
+
+  dragAndDropCardEnabled = false;
 
   constructor(
     public cardsService: CardsService,
@@ -59,15 +61,12 @@ export class PlayerComponent implements OnInit {
 
   ngOnInit(): void {
 
-    if (this.playerIndex != null) {
-      this.player$ = this.store.select(s => s.game.players[Number(this.playerIndex)]);
+    this.player$.subscribe(p => {
+      this.cardsOrientation = p.index == 0 || p.index == 2 ? EnumCardOrientation.vertical : EnumCardOrientation.horizontal;
+    });
 
-      this.player$.subscribe(p => {
-        this.cardsOrientation = p.index == 0 || p.index == 2 ? EnumCardOrientation.vertical : EnumCardOrientation.horizontal;
-      })
-    }
-
-    this.setupCardAnimations();
+    this.setupDistributeCardFromStackAnimation();
+    this.setupFinishedDistributingCards();
   }
 
 
@@ -81,7 +80,11 @@ export class PlayerComponent implements OnInit {
     )
   }
 
-  setupCardAnimations() {
+  /*
+  * Calculates the start positions of each card to animate the movement from the buy stack to player hand
+  */
+  setupDistributeCardFromStackAnimation() {
+
     this.actions$.pipe(
       ofType(fromGameActions.givePlayerCardFromBuyStack),
       filter(action => action.playerIndex == this.playerIndex),
@@ -102,15 +105,22 @@ export class PlayerComponent implements OnInit {
         this.playCardFlip();
       })
     ).subscribe();
+  }
 
+  /*
+  * When finished distributing cards from buy stack enables drag and drop
+  */
+  setupFinishedDistributingCards() {
     this.actions$.pipe(
       ofType(fromGameActions.finishedDistributingCards),
       delay(0),
-      tap(() => {
-        this.transformCardStartPositions =  this.cardsOrientation == EnumCardOrientation.horizontal ? Array(9).fill('rotate(90deg)') : Array(9).fill('');
+      concatLatestFrom(action => this.player$ as Observable<Player>),
+      tap(([action, player]) => {
+        console.log( player.index == 0);
+        this.dragAndDropCardEnabled = player.index == 0;
+        this.transformCardStartPositions = this.cardsOrientation == EnumCardOrientation.horizontal ? Array(9).fill('rotate(90deg)') : Array(9).fill('');
       })
     ).subscribe();
-
   }
 
   playCardFlip() {
@@ -127,7 +137,7 @@ export class PlayerComponent implements OnInit {
     audio.play();
   }
 
-  public get getEnumCardOrientation(){
+  public get getEnumCardOrientation() {
     return EnumCardOrientation;
   }
 
