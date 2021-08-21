@@ -6,8 +6,9 @@ import { CachetaStore } from './shared/state/store/root.store';
 import * as fromGameActions from './shared/state/actions/game.actions';
 
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { Actions, ofType } from '@ngrx/effects';
+import { act, Actions, ofType } from '@ngrx/effects';
 import { filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { getOffsetElement } from './shared/getOffsetElement';
 
 
 @Component({
@@ -15,11 +16,15 @@ import { filter, map, switchMap, take, tap } from 'rxjs/operators';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   animations: [
-    trigger('reciveCardFronDeck', [
-      state('startAnimation',
-        style({ transform: 'translateX(0px) translateY(0px)' })
+    trigger('discardCardPlayer', [
+      state('vertical',
+        style({ transform: '{{ transformParam }}' }), { params: { transformParam: 'translateX(0px) translateY(0px)' } }
       ),
-      transition('void => startAnimation', [animate('1s')])
+      state('horizontal',
+        style({ transform: '{{ transformParam }}' }), { params: { transformParam: 'translateX(0px) translateY(0px) rotate(90deg)' } }
+      ),
+      transition('void => vertical', [animate('240ms')]),
+      transition('void => horizontal', [animate('240ms')])
     ]),
   ]
 })
@@ -29,19 +34,16 @@ export class AppComponent implements OnInit {
   @ViewChild('divBuyStack')
   divBuyStack: ElementRef = {} as ElementRef;
 
-  @ViewChildren('divCard')
-  divCards: QueryList<ElementRef> = {} as QueryList<ElementRef>;
+  @ViewChild('divDiscardPile')
+  divDiscardPile: ElementRef = {} as ElementRef;
 
-  startCardAnimations: string[] = Array(9).fill('');
+  discardPile$ = this.store.select(s => s.game.discardPile);
 
-  transformCardStartPositions: string[] = Array(9).fill('');
-
-  players$ = this.store.select(s => s.game.players);
-  player0$ = this.store.select(s => s.game.players[0]);
-  player1$ = this.store.select(s => s.game.players[1]);
-  player2$ = this.store.select(s => s.game.players[2]);
-  player3$ = this.store.select(s => s.game.players[3]);
   topCardBuyStack$ = this.store.select(s => s.game.buyStack[s.game.buyStack.length - 1]);
+
+  stateDiscardCardAnimation: string[] = [];
+  transformCardStartPosition: string[] = [];
+  transformCardEndPosition: string[] = [];
 
   constructor(
     public cardsService: CardsService,
@@ -51,57 +53,54 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
+    this.actions$.pipe(
+      ofType(fromGameActions.startGame),
+      tap(() => {
+        this.stateDiscardCardAnimation = [];
+        this.transformCardStartPosition = [];
+        this.transformCardEndPosition = [];
+      })
+    ).subscribe();
 
+    this.actions$.pipe(
+      ofType(fromGameActions.discardCard),
+      tap(action => {
+
+        const cardPosition = getOffsetElement(this.divDiscardPile.nativeElement);
+        const startCardPositionX = action.left - cardPosition.left;
+        const startCardPositionY = action.top - cardPosition.top;
+
+        let endRotation = 0;
+        if (action.cardOrientation == 'vertical') {
+          endRotation = (Math.random() * 20) * (Math.random() < 0.5 ? -1 : 1);
+        } else {
+          endRotation = ((Math.random() * 20) * (Math.random() < 0.5 ? -1 : 1)) + 90;
+        }
+
+        const endX = (Math.random() * 10) * (Math.random() < 0.5 ? -1 : 1);
+        const endY = (Math.random() * 10) * (Math.random() < 0.5 ? -1 : 1);
+
+        this.transformCardEndPosition.push(`translateX(${endX}vh) translateY(${endY}vh) rotate(${endRotation}deg) `);
+        this.transformCardStartPosition.push(`translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`);
+        this.stateDiscardCardAnimation.push(action.cardOrientation);
+      })
+    ).subscribe();
   }
 
 
   startGame() {
-
-    this.actions$.pipe(
-      ofType(fromGameActions.givePlayerCardFromBuyStack),
-      filter(action => action.playerIndex == 0),
-      switchMap(action => this.store.select(s => s.game.players[action.playerIndex])),
-      map(player => player.cards.findIndex(c => c == null) - 1),
-    ).subscribe(cardIndex => {
-
-      this.divCards.forEach((divCard, i) => {
-
-        if (cardIndex == i) {
-          const buyStackPosition = this.getOffsetElement(this.divBuyStack.nativeElement);
-
-          const cardPosition = this.getOffsetElement(divCard.nativeElement);
-
-          const startCardPositionX = buyStackPosition.left - cardPosition.left;
-          const startCardPositionY = buyStackPosition.top - cardPosition.top;
-
-          this.transformCardStartPositions[cardIndex] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
-        }
-
-      });
-
-      this.startCardAnimations[cardIndex < 0 ? 8 : cardIndex] = 'startAnimation'
-
-    });
-
-
     this.store.dispatch(fromGameActions.startGame());
   }
 
-
-
-  getOffsetElement(el: any) {
-    var _x = 0;
-    var _y = 0;
-    while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
-      _x += el.offsetLeft - el.scrollLeft;
-      _y += el.offsetTop - el.scrollTop;
-      el = el.offsetParent;
-    }
-    return { top: _y, left: _x };
+  get buyStackPosition() {
+    return getOffsetElement(this.divBuyStack.nativeElement);
   }
 
-  get buyStackPosition() {
-    return this.getOffsetElement(this.divBuyStack.nativeElement);
+
+  onClickBuyStack() {
+    this.topCardBuyStack$.subscribe((card) =>{
+      this.store.dispatch(fromGameActions.givePlayerCardFromBuyStack({ playerIndex: 0, card }));
+    });
   }
 
 }

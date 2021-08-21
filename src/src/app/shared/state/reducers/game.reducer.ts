@@ -6,14 +6,14 @@ import * as fromGameActions from '../actions/game.actions';
 
 export interface State {
   buyStack: Card[];
-  discartPile: Card[];
+  discardPile: Card[];
   playerRound: number;
   players: Player[];
 }
 
 export const initialState: State = {
   buyStack: [],
-  discartPile: [],
+  discardPile: [],
   playerRound: 0,
   players: [
     { index: 0, cards: new Array(9).fill(null) },
@@ -36,29 +36,22 @@ const gameReducer = createReducer(
   on(
     fromGameActions.givePlayerCardFromBuyStack,
     (state, { playerIndex, card }) => {
-      let deck = [...state.buyStack];
+      
 
-      const index = deck.findIndex((d) => cardsAreEqual(d, card));
+      //remove card drom buy stack
+      let buyStack = [...state.buyStack];
+      const index = buyStack.findIndex((d) => cardsAreEqual(d, card));
+      buyStack.splice(index, 1);
 
-      deck.splice(index, 1);
-
-      let cardsPlayer = {
-        ...state.players[playerIndex],
-        cards: [...state.players[playerIndex].cards],
-      };
-
-      const cardIndex = cardsPlayer.cards.findIndex((c) => c == null);
-
-      cardsPlayer.cards[cardIndex] = card;
+      //place card in the last position
+      let currentPlayer = getCopyOfPlayerFromState(playerIndex, state);
+      const cardIndex = currentPlayer.cards.findIndex((c) => c == null);
+      currentPlayer.cards[cardIndex] = card;
 
       return {
         ...state,
-        buyStack: deck,
-        players: [
-          ...state.players.slice(0, playerIndex),
-          cardsPlayer,
-          ...state.players.slice(playerIndex + 1),
-        ],
+        buyStack,
+        players: getCopOfPayersReplacingPlayer(playerIndex, currentPlayer, state),
       };
     }
   ),
@@ -66,12 +59,8 @@ const gameReducer = createReducer(
   on(
     fromGameActions.moveCardPositionInPlayerHand,
     (state, { playerIndex, lastIndex, nextIndex }) => {
-      let currentPlayer = {
-        ...state.players[playerIndex],
-        cards: [...state.players[playerIndex].cards],
-      };
 
-      let card = currentPlayer.cards[lastIndex];
+      let currentPlayer = getCopyOfPlayerFromState(playerIndex, state);
 
       currentPlayer.cards.splice(
         nextIndex,
@@ -81,15 +70,45 @@ const gameReducer = createReducer(
 
       return {
         ...state,
-        players: [
-          ...state.players.slice(0, playerIndex),
-          currentPlayer,
-          ...state.players.slice(playerIndex + 1),
-        ],
+        players: getCopOfPayersReplacingPlayer(playerIndex, currentPlayer, state),
+      };
+    }
+  ),
+
+  on(
+    fromGameActions.discardCard,
+    (state, { playerIndex, card, top, left }) => {
+
+      const currentPlayer = getCopyOfPlayerFromState(playerIndex, state);
+
+      const cardIndex = currentPlayer.cards.findIndex((c, i) => cardsAreEqual(c, card));
+
+      currentPlayer.cards.splice(cardIndex, 1);
+
+      return {
+        ...state,
+        discardPile: [...state.discardPile, card],
+        players: getCopOfPayersReplacingPlayer(playerIndex, currentPlayer, state),
       };
     }
   )
+
 );
+
+function getCopyOfPlayerFromState(playerIndex: number, state: State) {
+  return {
+    ...state.players[playerIndex],
+    cards: [...state.players[playerIndex].cards],
+  };
+}
+
+function getCopOfPayersReplacingPlayer(playerIndex: number, playerToReplace: Player, state: State) {
+  return [
+    ...state.players.slice(0, playerIndex),
+    playerToReplace,
+    ...state.players.slice(playerIndex + 1),
+  ];
+}
 
 export function reducer(state: State | undefined, action: Action) {
   return gameReducer(state, action);

@@ -21,7 +21,7 @@ enum EnumCardOrientation {
   templateUrl: './player.component.html',
   styleUrls: ['./player.component.css'],
   animations: [
-    trigger('reciveCardFronDeck', [
+    trigger('reciveCardFromDeck', [
       state('vertical',
         style({ transform: 'translateX(0px) translateY(0px)' })
       ),
@@ -46,8 +46,8 @@ export class PlayerComponent implements OnInit {
 
   player$: Observable<Player> = this.store.select(s => s.game.players[Number(this.playerIndex)]);
 
-  startCardAnimations: string[] = Array(9).fill('');
-  transformCardStartPositions: string[] = Array(9).fill('');
+  startCardAnimations: string[] = Array(10).fill('');
+  transformCardStartPositions: string[] = Array(10).fill('');
 
   cardsOrientation?: EnumCardOrientation | null = null;
 
@@ -93,10 +93,8 @@ export class PlayerComponent implements OnInit {
       map(lastNullCard => lastNullCard < 0 ? 8 : lastNullCard), // calculate the index of the current card      
       tap((cardIndex: number) => {
 
-        const divCard = this.divCards.find((divCard, i) => cardIndex == i);
-
         //calculates the startposition of the current card
-        const cardPosition = getOffsetElement(divCard?.nativeElement);
+        const cardPosition = this.getOffsetCard(cardIndex);
         const startCardPositionX = this.buyStackPosition.left - cardPosition.left;
         const startCardPositionY = this.buyStackPosition.top - cardPosition.top;
         this.transformCardStartPositions[cardIndex] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
@@ -116,11 +114,19 @@ export class PlayerComponent implements OnInit {
       delay(0),
       concatLatestFrom(action => this.player$ as Observable<Player>),
       tap(([action, player]) => {
-        console.log( player.index == 0);
         this.dragAndDropCardEnabled = player.index == 0;
-        this.transformCardStartPositions = this.cardsOrientation == EnumCardOrientation.horizontal ? Array(9).fill('rotate(90deg)') : Array(9).fill('');
+        this.transformCardStartPositions = this.cardsOrientation == EnumCardOrientation.horizontal ? Array(10).fill('rotate(90deg)') : Array(10).fill('');
       })
     ).subscribe();
+  }
+
+  getOffsetCard(cardIndex: number) {
+    const divCard = this.divCards.find((divCard, i) => cardIndex == i);
+
+    //calculates the startposition of the current card
+    const cardPosition = getOffsetElement(divCard?.nativeElement);
+
+    return cardPosition;
   }
 
   playCardFlip() {
@@ -139,6 +145,23 @@ export class PlayerComponent implements OnInit {
 
   public get getEnumCardOrientation() {
     return EnumCardOrientation;
+  }
+
+  onClickCard(cardIndex: number, card: Card) {
+
+    const cardOffset = this.getOffsetCard(cardIndex);
+
+    this.player$.pipe(take(1)).subscribe((player) => {
+      this.store.dispatch(
+        fromGameActions.discardCard({
+          card,
+          playerIndex: player.index,
+          cardOrientation: this.cardsOrientation?.toString() ?? '',
+          ...cardOffset
+        })
+      )
+    });
+
   }
 
 
