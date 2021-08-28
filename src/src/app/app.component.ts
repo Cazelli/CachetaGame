@@ -85,6 +85,16 @@ export class AppComponent implements OnInit {
         this.stateDiscardCardAnimation.push(action.cardOrientation);
       })
     ).subscribe();
+
+    this.actions$.pipe(
+      ofType(fromGameActions.buyCardFromDiscardPile),
+      tap(() => {
+        this.stateDiscardCardAnimation.splice(this.stateDiscardCardAnimation.length - 1, 1);
+        this.transformCardStartPosition.splice(this.transformCardStartPosition.length - 1, 1);
+        this.transformCardEndPosition.splice(this.transformCardEndPosition.length - 1, 1);
+      })
+    ).subscribe();
+
   }
 
 

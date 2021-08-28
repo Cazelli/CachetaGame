@@ -119,10 +119,16 @@ const gameReducer = createReducer(
     status: EnumGameStatus.watingForPlayersToGetReady
   })),
 
-  on(fromGameActions.playerReady, (state) => ({
+  on(fromGameActions.playerReady, (state, ) => ({
     ...state,
-    status: EnumGameStatus.newPlayerRound,
+    status: EnumGameStatus.startedPlayerRound,
     playerRound: 0
+  })),
+
+  on(fromGameActions.startPlayerRound, (state, { playerIndex }) => ({
+    ...state,
+    status: EnumGameStatus.startedPlayerRound,
+    playerRound: playerIndex
   })),
 
   on(

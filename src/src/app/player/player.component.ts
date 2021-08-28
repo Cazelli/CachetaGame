@@ -70,6 +70,16 @@ export class PlayerComponent implements OnInit {
 
     this.setupDistributeCardFromStackAnimation();
     this.setupFinishedDistributingCards();
+
+    this.actions$.pipe(
+      ofType(fromGameActions.buyCardFromBuyStack, fromGameActions.buyCardFromDiscardPile),
+      filter(a => a.playerIndex >= 1 && a.playerIndex <= 3 && a.playerIndex == this.playerIndex),
+      delay(1000),
+      concatLatestFrom(a => this.player$ as Observable<Player>)
+    ).subscribe(([a, p]) => {
+        this.onClickCard(9, p.cards[9]);
+      })
+
   }
 
 
@@ -153,19 +163,33 @@ export class PlayerComponent implements OnInit {
   }
 
   onClickCard(cardIndex: number, card: Card) {
-
-    const cardOffset = this.getOffsetCard(cardIndex);
-
-    this.player$.pipe(take(1)).subscribe((player) => {
-      this.store.dispatch(
-        fromGameActions.discardCard({
-          card,
-          playerIndex: player.index,
-          cardOrientation: this.cardsOrientation?.toString() ?? '',
-          ...cardOffset
-        })
+    console.log(cardIndex, this.playerIndex, card);
+    this.store.select(g => g.game)
+      .pipe(
+        take(1),
+        filter(g =>
+          g.status == EnumGameStatus.playerboughtCard
+          &&
+          this.playerIndex == g.playerRound)
       )
-    });
+      .subscribe(() => {
+
+        const cardOffset = this.getOffsetCard(cardIndex);
+
+        this.player$.pipe(take(1)).subscribe((player) => {
+          this.store.dispatch(
+            fromGameActions.discardCard({
+              card,
+              playerIndex: player.index,
+              cardOrientation: this.cardsOrientation?.toString() ?? '',
+              ...cardOffset
+            })
+          )
+        });
+
+      });
+
+
 
   }
 

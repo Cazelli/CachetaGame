@@ -27,3 +27,6 @@ export const buyCardFromBuyStack = createAction(
 
 export const buyCardFromDiscardPile = createAction(
     '[GAME] Buy card from discard pile', props<{ playerIndex: number }>())
+
+export const startPlayerRound = createAction(
+    '[GAME] Started player round', props<{ playerIndex: number }>())

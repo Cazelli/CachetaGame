@@ -7,7 +7,7 @@ export enum EnumGameStatus
     shuffledCards = 'shuffledCards',
     distributingCards = 'distributingCards',
     watingForPlayersToGetReady = 'watingForPlayersToGetReady',
-    newPlayerRound = 'newPlayerRound',
+    startedPlayerRound = 'startedPlayerRound',
     playerboughtCard = 'playerboughtCard',
     playerDiscardedCard = 'playerDiscardedCard',
     playerPresentingHisCards = 'playerPresentingHisCards',

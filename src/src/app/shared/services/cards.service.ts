@@ -80,7 +80,7 @@ export class CardsService {
     }
 
     public canPlayerBuyCard(game: GameState) {
-        return game.status == EnumGameStatus.newPlayerRound
+        return game.status == EnumGameStatus.startedPlayerRound
                &&
                game.playerRound == 0
                && game.players.find(p => p.index == 0)?.cards[9] == null;

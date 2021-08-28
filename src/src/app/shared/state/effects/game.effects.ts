@@ -1,12 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Actions, concatLatestFrom, createEffect, ofType } from "@ngrx/effects";
 import { Store } from "@ngrx/store";
-
-import { of } from "rxjs";
-import { delay, filter, map, switchMap, take, tap, timeout } from "rxjs/operators";
-import { Card } from "../../models/cards.model";
+import { Observable, of } from "rxjs";
+import { delay, filter, switchMap, tap, timeout, } from "rxjs/operators";
 import { CardsService } from "../../services/cards.service";
 import * as fromGameActions from '../actions/game.actions';
+import { GameState } from "../reducers/game.reducer";
 import { CachetaStore } from "../store/root.store";
 
 @Injectable({ providedIn: 'root' })
@@ -61,5 +60,41 @@ export class GameEffects {
                 }
             })
         ), { dispatch: false });
+
+
+    nextRound$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(fromGameActions.discardCard),
+            switchMap((a) => {
+                let playerIndex = a.playerIndex + 1;
+                if (playerIndex == 4)
+                    playerIndex = 0;
+
+                return of(fromGameActions.startPlayerRound({ playerIndex }));
+            })
+        )
+    );
+
+    botBuyCard$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(fromGameActions.startPlayerRound),
+            filter(a => a.playerIndex >= 1 && a.playerIndex <= 3),
+            delay(1000),
+            concatLatestFrom(a => this.gameState as Observable<CachetaStore>),
+            tap(([a, g]) => {
+                var playerIndex = g.game.playerRound ?? 0;
+
+                if (g.game.discardPile.length > 0 && Math.random() > 0.5) {
+                    this.gameState.dispatch(fromGameActions.buyCardFromDiscardPile({ playerIndex }));
+                }
+                else {
+                    this.gameState.dispatch(fromGameActions.buyCardFromBuyStack({ playerIndex }));
+                }
+
+            })
+        )
+        , { dispatch: false });
+
+
 
 }
