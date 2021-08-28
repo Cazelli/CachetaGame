@@ -1,3 +1,5 @@
+<button *ngIf="playerIndex  == 0  && (gameStatus$ | async )== getEnumGameStatus.watingForPlayersToGetReady"
+  (click)="onClickReady()">I'm ready</button>
 <div
   [class]="{cards: true,'cards-vertical': cardsOrientation == getEnumCardOrientation.vertical,'cards-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}"
   cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onDropMovingCard($event)">
@@ -6,13 +8,17 @@
     [cdkDragDisabled]="!dragAndDropCardEnabled" (click)="onClickCard(i, card)"
     [class]="{card: true,'card-vertical': cardsOrientation == getEnumCardOrientation.vertical,'card-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}">
     <!-- other players cards -->
-    <img *ngIf="card && (player$ | async)?.index != 0" [@reciveCardFromDeck]="startCardAnimations[i]"
+    <img *ngIf="card && (player$ | async)?.index != 0" 
+      [@reciveCardFromDeck]="startCardAnimations[i]"
+      (@reciveCardFromDeck.done)="finishedAnimationCard(i)"
       [style]="{ transform: transformCardStartPositions[i] }"
       [src]="'assets/img/cards/back-' + card?.backColor + '.svg'" />
 
     <!-- current player card-->
-    <img *ngIf="card && (player$ | async)?.index == 0" [@reciveCardFromDeck]="startCardAnimations[i]"
-      [style]="{ transform: transformCardStartPositions[i] }" [src]="'assets/img/cards/' + card?.image" />
+    <img *ngIf="card && (player$ | async)?.index == 0" 
+    [@reciveCardFromDeck]="startCardAnimations[i]"
+    (@reciveCardFromDeck.done)="finishedAnimationCard(i)"
+    [style]="{ transform: transformCardStartPositions[i] }" [src]="'assets/img/cards/' + card?.image" />
 
   </div>
 </div>

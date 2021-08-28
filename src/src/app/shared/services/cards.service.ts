@@ -1,5 +1,9 @@
 import { Injectable } from "@angular/core";
 import { Card, EnumCardBackColor, EnumCardNumber, EnumCardSuit } from "../models/cards.model";
+import { EnumGameStatus } from "../models/game.model";
+import { GameState } from "../state/reducers/game.reducer";
+
+
 
 @Injectable({ providedIn: 'root' })
 export class CardsService {
@@ -22,7 +26,7 @@ export class CardsService {
         }
 
         this.shuffle(cards);
-        
+
         return cards;
     }
 
@@ -75,9 +79,16 @@ export class CardsService {
         return cardBackColors;
     }
 
+    public canPlayerBuyCard(game: GameState) {
+        return game.status == EnumGameStatus.newPlayerRound
+               &&
+               game.playerRound == 0
+               && game.players.find(p => p.index == 0)?.cards[9] == null;
+    }
+
 }
 
-export function cardsAreEqual(card1: Card, card2: Card) {
+export function areCardsEqual(card1: Card, card2: Card) {
     return card1.backColor === card2.backColor
         &&
         card1.number === card2.number

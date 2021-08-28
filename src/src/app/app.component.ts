@@ -1,14 +1,14 @@
 import { Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActionsSubject, Store } from '@ngrx/store';
 import { Card } from './shared/models/cards.model';
-import { CardsService } from './shared/services/cards.service';
+import { areCardsEqual, CardsService } from './shared/services/cards.service';
 import { CachetaStore } from './shared/state/store/root.store';
 import * as fromGameActions from './shared/state/actions/game.actions';
-
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { act, Actions, ofType } from '@ngrx/effects';
 import { filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { getOffsetElement } from './shared/getOffsetElement';
+import { EnumGameStatus } from './shared/models/game.model';
 
 
 @Component({
@@ -98,9 +98,32 @@ export class AppComponent implements OnInit {
 
 
   onClickBuyStack() {
-    this.topCardBuyStack$.subscribe((card) =>{
-      this.store.dispatch(fromGameActions.givePlayerCardFromBuyStack({ playerIndex: 0, card }));
+    this.store.select(s => s.game).pipe(take(1)).subscribe(g => {
+
+      if (this.cardsService.canPlayerBuyCard(g)) {
+        this.store.dispatch(fromGameActions.buyCardFromBuyStack({ playerIndex: 0 }));
+      }
+
     });
+
+  }
+
+  onClickDiscardPile(cardCliked: Card) {
+    this.store.select(s => s.game).pipe(take(1)).subscribe(g => {
+
+      const lastCard = g.discardPile[g.discardPile.length - 1];
+
+      //if the card clicked is the top one
+      if (areCardsEqual(cardCliked, lastCard)) {
+
+        if (this.cardsService.canPlayerBuyCard(g)) {
+          this.store.dispatch(fromGameActions.buyCardFromDiscardPile({ playerIndex: 0 }));
+        }
+
+      }
+
+    });
+
   }
 
 }

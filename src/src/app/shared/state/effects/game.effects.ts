@@ -32,20 +32,17 @@ export class GameEffects {
     distributeCards$ = createEffect(() =>
         this.actions$.pipe(
             ofType(fromGameActions.createDeckStack),
-            //delay(1000), //delay so the first animations does not bug on mobile
+            delay(1000), //delay so the first animations does not bug on mobile
             concatLatestFrom(action => this.gameState.select(s => s.game)),
             tap(([action, gameData]) => {
 
-                let currentCardIndex = gameData.buyStack.length - 1;
                 for (let cardIndex = 0; cardIndex < 9; cardIndex++) {
                     for (let playerIndex = 0; playerIndex < gameData.players.length; playerIndex++) {
-                        //setTimeout(() => {
+                        setTimeout(() => {
 
-                            const cardToGive = gameData.buyStack[currentCardIndex];
-                            currentCardIndex--;
-                            this.gameState.dispatch(fromGameActions.givePlayerCardFromBuyStack({ playerIndex, card: cardToGive }))
+                            this.gameState.dispatch(fromGameActions.distributeCardFromBuyStack({ playerIndex }))
 
-                        //}, cardIndex * 1000 + playerIndex * 250);
+                        }, cardIndex * 1000 + playerIndex * 250);
                     }
                 }
 
@@ -55,7 +52,7 @@ export class GameEffects {
 
     finishedDistributingCards$ = createEffect(() =>
         this.actions$.pipe(
-            ofType(fromGameActions.givePlayerCardFromBuyStack),
+            ofType(fromGameActions.distributeCardFromBuyStack),
             concatLatestFrom(action => this.gameState.select(s => s.game)),
             tap(([action, gameData]) => {
                 const numberOfCardsDistributed = gameData.players.map(p => p.cards.filter(c => c != null).length).reduce((a, b) => a + b);

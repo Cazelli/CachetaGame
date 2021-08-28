@@ -10,6 +10,7 @@ import { getOffsetElement } from '../shared/getOffsetElement';
 import { Observable, pipe } from 'rxjs';
 import { Card } from '../shared/models/cards.model';
 import { Player } from '../shared/models/player.model';
+import { EnumGameStatus } from '../shared/models/game.model';
 
 enum EnumCardOrientation {
   vertical = 'vertical',
@@ -44,6 +45,8 @@ export class PlayerComponent implements OnInit {
   @ViewChildren('divCard')
   divCards: QueryList<ElementRef> = {} as QueryList<ElementRef>;
 
+  playerRound$: Observable<number | undefined> = this.store.select(s => s.game.playerRound);
+  gameStatus$: Observable<EnumGameStatus> = this.store.select(s => s.game.status);
   player$: Observable<Player> = this.store.select(s => s.game.players[Number(this.playerIndex)]);
 
   startCardAnimations: string[] = Array(10).fill('');
@@ -86,11 +89,10 @@ export class PlayerComponent implements OnInit {
   setupDistributeCardFromStackAnimation() {
 
     this.actions$.pipe(
-      ofType(fromGameActions.givePlayerCardFromBuyStack),
+      ofType(fromGameActions.distributeCardFromBuyStack, fromGameActions.buyCardFromBuyStack),
       filter(action => action.playerIndex == this.playerIndex),
       concatLatestFrom(action => this.player$ as Observable<Player>),
-      map(([action, player]) => player.cards.findIndex(c => c == null) - 1), //get index of the last card that is null, the card before is the current card
-      map(lastNullCard => lastNullCard < 0 ? 8 : lastNullCard), // calculate the index of the current card      
+      map(([action, player]) => player.cards.filter(c => c != null).length - 1),
       tap((cardIndex: number) => {
 
         //calculates the startposition of the current card
@@ -98,7 +100,6 @@ export class PlayerComponent implements OnInit {
         const startCardPositionX = this.buyStackPosition.left - cardPosition.left;
         const startCardPositionY = this.buyStackPosition.top - cardPosition.top;
         this.transformCardStartPositions[cardIndex] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
-
         this.startCardAnimations[cardIndex] = this.cardsOrientation?.toString() ?? '';
         this.playCardFlip();
       })
@@ -147,6 +148,10 @@ export class PlayerComponent implements OnInit {
     return EnumCardOrientation;
   }
 
+  public get getEnumGameStatus() {
+    return EnumGameStatus;
+  }
+
   onClickCard(cardIndex: number, card: Card) {
 
     const cardOffset = this.getOffsetCard(cardIndex);
@@ -162,6 +167,14 @@ export class PlayerComponent implements OnInit {
       )
     });
 
+  }
+
+  onClickReady() {
+    this.store.dispatch(fromGameActions.playerReady());
+  }
+
+  finishedAnimationCard(i: number) {
+    this.transformCardStartPositions[i] = '';
   }
 
 
