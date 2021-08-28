@@ -44,16 +44,9 @@
     transform: translate(50%, 0);
 }
 
-.buy-card-stack{
-    float: right;
-}
 
 .discard-pile-wrapper{
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.discard-pile, .discard-pile div{
-    width: 0;
-    height: 0;
 }

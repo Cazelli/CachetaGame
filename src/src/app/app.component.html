@@ -12,19 +12,10 @@
         </div>
         <div class='card-area'>
             <button (click)="startGame()">Start Game</button>
-            <div #divBuyStack class="buy-card-stack">
-                <img [src]="'assets/img/cards/back-' + (topCardBuyStack$ | async)?.backColor + '.svg'" width="100px"
-                    *ngIf="(topCardBuyStack$ | async)" (click)="onClickBuyStack()">
-            </div>
+            <app-buy-stack (changedBuyStackPosition)="onChangedBuyStackPosition($event)"></app-buy-stack>
             <br style="clear: both;">
             <div class="discard-pile-wrapper">
-                <div class="discard-pile" #divDiscardPile>
-                    <div *ngFor="let card of discardPile$ |async; let i = index">
-                        <img [src]="'assets/img/cards/' + card?.image"
-                            [@discardCardPlayer]="{value: stateDiscardCardAnimation[i], params: {'transformParam': transformCardEndPosition[i]}}"
-                            [style]="{ transform: transformCardStartPosition[i] }" width="100px" (click)="onClickDiscardPile(card)" />
-                    </div>
-                </div>
+                <app-discard-pile></app-discard-pile>
             </div>
         </div>
         <div class="game-center-right">

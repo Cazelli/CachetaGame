@@ -1,0 +1,4 @@
+.discard-pile, .discard-pile div{
+    width: 0;
+    height: 0;
+}

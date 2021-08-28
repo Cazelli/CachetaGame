@@ -163,7 +163,7 @@ export class PlayerComponent implements OnInit {
   }
 
   onClickCard(cardIndex: number, card: Card) {
-    console.log(cardIndex, this.playerIndex, card);
+
     this.store.select(g => g.game)
       .pipe(
         take(1),

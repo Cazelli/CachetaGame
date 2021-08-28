@@ -1,0 +1,7 @@
+<div class="discard-pile" #divDiscardPile>
+    <div *ngFor="let card of discardPile$ |async; let i = index">
+        <img [src]="'assets/img/cards/' + card?.image"
+            [@discardCardPlayer]="{value: stateDiscardCardAnimation[i], params: {'transformParam': transformCardEndPosition[i]}}"
+            [style]="{ transform: transformCardStartPosition[i] }" width="100px" (click)="onClickDiscardPile(card)" />
+    </div>
+</div>

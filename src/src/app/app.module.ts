@@ -16,12 +16,16 @@ import * as gameState from '../app/shared/state/reducers/game.reducer';
 import { LogEffects } from './shared/state/effects/log.effects';
 import { GameEffects } from './shared/state/effects/game.effects';
 import { PlayerComponent } from './player/player.component';
+import { DiscardPileComponent } from './discard-pile/discard-pile.component';
+import { BuyStackComponent } from './buy-stack/buy-stack.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    PlayerComponent
+    PlayerComponent,
+    DiscardPileComponent,
+    BuyStackComponent
   ],
   imports: [
     BrowserModule,

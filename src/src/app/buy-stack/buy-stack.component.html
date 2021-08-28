@@ -1,0 +1,4 @@
+<div #divBuyStack class="buy-card-stack">
+    <img [src]="'assets/img/cards/back-' + (topCardBuyStack$ | async)?.backColor + '.svg'" width="100px"
+        *ngIf="(topCardBuyStack$ | async)" (click)="onClickBuyStack()">
+</div>
