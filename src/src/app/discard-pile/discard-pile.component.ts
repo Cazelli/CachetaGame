@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { ofType } from '@ngrx/effects';
 import { ActionsSubject, Store } from '@ngrx/store';
 import { take, tap } from 'rxjs/operators';
@@ -8,6 +8,7 @@ import * as fromGameActions from '../shared/state/actions/game.actions';
 import { getOffsetElement } from '../shared/getOffsetElement';
 import { Card } from '../shared/models/cards.model';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-discard-pile',
@@ -26,10 +27,13 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
     ]),
   ]
 })
-export class DiscardPileComponent implements OnInit {
+export class DiscardPileComponent implements OnInit, AfterViewInit {
 
   @ViewChild('divDiscardPile')
   divDiscardPile: ElementRef = {} as ElementRef;
+
+  @Output()
+  changedDiscardPilePosition = new Subject<{ top: number, left: number }>();
 
   discardPile$ = this.store.select(s => s.game.discardPile);
 
@@ -44,6 +48,8 @@ export class DiscardPileComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
+  
 
     this.actions$.pipe(
       ofType(fromGameActions.startGame),
@@ -89,7 +95,13 @@ export class DiscardPileComponent implements OnInit {
 
   }
 
+  ngAfterViewInit(){
+    this.onChangedDiscardPilePosition();
+  }
+
+
   onClickDiscardPile(cardCliked: Card) {
+
     this.store.select(s => s.game).pipe(take(1)).subscribe(g => {
 
       const lastCard = g.discardPile[g.discardPile.length - 1];
@@ -105,6 +117,11 @@ export class DiscardPileComponent implements OnInit {
 
     });
 
+  }
+
+  @HostListener('window:resize')
+  onChangedDiscardPilePosition() {
+    this.changedDiscardPilePosition.next(getOffsetElement(this.divDiscardPile.nativeElement));
   }
 
 }

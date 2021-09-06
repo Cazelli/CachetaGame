@@ -14,7 +14,7 @@ import { ofType } from '@ngrx/effects';
   templateUrl: './buy-stack.component.html',
   styleUrls: ['./buy-stack.component.css']
 })
-export class BuyStackComponent implements OnInit {
+export class BuyStackComponent implements OnInit, AfterViewInit {
 
   @ViewChild('divBuyStack')
   divBuyStack: ElementRef = {} as ElementRef;
@@ -31,12 +31,11 @@ export class BuyStackComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.actions$.pipe(
-      ofType(fromGameActions.createDeckStack),
-      tap(() => {
-        this.onChangedBuyStackPosition();
-      })
-    ).subscribe();
+
+  }
+
+  ngAfterViewInit(): void {
+    this.onChangedBuyStackPosition();
   }
 
 

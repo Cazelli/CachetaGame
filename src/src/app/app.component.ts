@@ -14,6 +14,8 @@ export class AppComponent implements OnInit {
 
   buyStackPosition = { top: 0, left: 0 };
 
+  discardPilePosition = { top: 0, left: 0 };
+
   constructor(
     public store: Store<CachetaStore>,
   ) { }
@@ -28,6 +30,10 @@ export class AppComponent implements OnInit {
 
   onChangedBuyStackPosition(position: any){
     this.buyStackPosition = position;
+  }
+
+  onChangedDiscardPilePosition(position: any){
+    this.discardPilePosition = position;
   }
 
 }

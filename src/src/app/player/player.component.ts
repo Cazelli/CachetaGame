@@ -40,6 +40,9 @@ export class PlayerComponent implements OnInit {
   buyStackPosition = { top: 0, left: 0 }
 
   @Input()
+  discardPilePosition = { top: 0, left: 0 }
+
+  @Input()
   playerIndex?: number;
 
   @ViewChildren('divCard')
@@ -69,8 +72,12 @@ export class PlayerComponent implements OnInit {
     });
 
     this.setupDistributeCardFromStackAnimation();
-    this.setupFinishedDistributingCards();
+    this.setupDragAndDropCards();
+    this.setupBuyCardFromDiscardPileAnimation();
 
+    /*
+    * Temporary bot discard card functionality after buying it
+    */
     this.actions$.pipe(
       ofType(fromGameActions.buyCardFromBuyStack, fromGameActions.buyCardFromDiscardPile),
       filter(a => a.playerIndex >= 1 && a.playerIndex <= 3 && a.playerIndex == this.playerIndex),
@@ -78,7 +85,7 @@ export class PlayerComponent implements OnInit {
       concatLatestFrom(a => this.player$ as Observable<Player>)
     ).subscribe(([a, p]) => {
         this.onClickCard(9, p.cards[9]);
-      })
+    })
 
   }
 
@@ -116,10 +123,28 @@ export class PlayerComponent implements OnInit {
     ).subscribe();
   }
 
+  setupBuyCardFromDiscardPileAnimation(){
+    this.actions$.pipe(
+      ofType(fromGameActions.buyCardFromDiscardPile),
+      filter(action => action.playerIndex == this.playerIndex),
+      concatLatestFrom(action => this.player$ as Observable<Player>),
+      tap(([action, player]) =>{
+
+        //calculates the startposition of the current card
+        const cardPosition = this.getOffsetCard(9);
+        const startCardPositionX = this.discardPilePosition.left - cardPosition.left;
+        const startCardPositionY = this.discardPilePosition.top - cardPosition.top;
+        this.transformCardStartPositions[9] = `translateX(${startCardPositionX}px) translateY(${startCardPositionY}px)`;
+        this.startCardAnimations[9] = this.cardsOrientation?.toString() ?? '';
+        this.playCardFlip();
+
+      })).subscribe();
+  }
+
   /*
   * When finished distributing cards from buy stack enables drag and drop
   */
-  setupFinishedDistributingCards() {
+  setupDragAndDropCards() {
     this.actions$.pipe(
       ofType(fromGameActions.finishedDistributingCards),
       delay(0),
@@ -199,6 +224,7 @@ export class PlayerComponent implements OnInit {
 
   finishedAnimationCard(i: number) {
     this.transformCardStartPositions[i] = '';
+    this.startCardAnimations[i] = '';
   }
 
 

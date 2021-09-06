@@ -1,5 +1,6 @@
 <button *ngIf="playerIndex  == 0  && (gameStatus$ | async )== getEnumGameStatus.watingForPlayersToGetReady"
   (click)="onClickReady()">I'm ready</button>
+
 <div
   [class]="{cards: true,'cards-vertical': cardsOrientation == getEnumCardOrientation.vertical,'cards-horizontal': cardsOrientation == getEnumCardOrientation.horizontal}"
   cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="onDropMovingCard($event)">

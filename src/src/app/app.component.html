@@ -1,13 +1,15 @@
 <div class='game-table'>
     <div class="game-top">
         <div class='player-2'>
-            <app-player [playerIndex]="2" [buyStackPosition]="buyStackPosition"></app-player>
+            <app-player [playerIndex]="2" [buyStackPosition]="buyStackPosition"
+                [discardPilePosition]="discardPilePosition"></app-player>
         </div>
     </div>
     <div class='game-center'>
         <div class="game-center-left">
             <div class='player-3'>
-                <app-player [playerIndex]="3" [buyStackPosition]="buyStackPosition"></app-player>
+                <app-player [playerIndex]="3" [buyStackPosition]="buyStackPosition"
+                    [discardPilePosition]="discardPilePosition"></app-player>
             </div>
         </div>
         <div class='card-area'>
@@ -15,18 +17,21 @@
             <app-buy-stack (changedBuyStackPosition)="onChangedBuyStackPosition($event)"></app-buy-stack>
             <br style="clear: both;">
             <div class="discard-pile-wrapper">
-                <app-discard-pile></app-discard-pile>
+                <app-discard-pile (changedDiscardPilePosition)="onChangedDiscardPilePosition($event)">
+                </app-discard-pile>
             </div>
         </div>
         <div class="game-center-right">
             <div class='player-1'>
-                <app-player [playerIndex]="1" [buyStackPosition]="buyStackPosition"></app-player>
+                <app-player [playerIndex]="1" [buyStackPosition]="buyStackPosition"
+                    [discardPilePosition]="discardPilePosition"></app-player>
             </div>
         </div>
     </div>
     <div class="game-botton">
         <div class='player-0'>
-            <app-player [playerIndex]="0" [buyStackPosition]="buyStackPosition"></app-player>
+            <app-player [playerIndex]="0" [buyStackPosition]="buyStackPosition"
+                [discardPilePosition]="discardPilePosition"></app-player>
         </div>
     </div>
 </div>
